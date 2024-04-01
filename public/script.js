@@ -9,29 +9,55 @@ const rocketObj = 'assets/Reddy.obj'
 const rocketPicture = document.getElementById("rocket-picture");
 const altitudeGraphicDiv = document.getElementById("rocket-altitude-container");
 const renderDiv = document.getElementById("rocket-render");
+const phaseSteps = document.getElementsByClassName("rocket-phase-step");
 const parachuteDiv = document.getElementById("parachute-status");
+const rawDataDiv = document.getElementById("raw-data");
 
 const MAX_ALTITUDE = 400;
 const INIT_EPOCH = Date.now();
 
 let rocketModel;
-let altitude = [];
-let acceleration = [];
-let pressure = [];
-let parachute = false;
+
+const data = {
+    altitude: [],
+    accelerationX: [],
+    accelerationY: [],
+    accelerationZ: [],
+    angularVelocityX: [],
+    angularVelocityY: [],
+    angularVelocityZ: [],
+    parachute: false,
+    phase: 3
+}
 // 0;15;987
 
-altitude.push({
+data.altitude.push({
     x: Date.now() - INIT_EPOCH,
     y: 0
 });
-acceleration.push({
+data.accelerationX.push({
     x: Date.now() - INIT_EPOCH,
     y: 15
 });
-pressure.push({
+data.accelerationY.push({
     x: Date.now() - INIT_EPOCH,
-    y: 987
+    y: 15
+});
+data.accelerationZ.push({
+    x: Date.now() - INIT_EPOCH,
+    y: 15
+});
+data.angularVelocityX.push({
+    x: Date.now() - INIT_EPOCH,
+    y: 15
+});
+data.angularVelocityY.push({
+    x: Date.now() - INIT_EPOCH,
+    y: 16
+});
+data.angularVelocityZ.push({
+    x: Date.now() - INIT_EPOCH,
+    y: 17
 });
 
 // When the connection is open, send a message to the server
@@ -44,11 +70,12 @@ ws.addEventListener('open', () => {
 // Listen for messages from the server
 ws.addEventListener('message', (event) => {
     console.log('Received message from server:', event.data);
-    altitude.push({
+    data.altitude.push({
         x: Date.now() - INIT_EPOCH,
-        y: altitude[altitude.length - 1].y + 1
+        y: data.altitude[data.altitude.length - 1].y + 1
     });
 });
+
 
 //*****************
 // Rocket altitude
@@ -71,13 +98,8 @@ for (let i = 0; i < 11; i++) {
 const container = renderDiv;
 const scene = new THREE.Scene();
 
-const light = new THREE.HemisphereLight(0xffffff, 0xff0000, 5);
+const light = new THREE.HemisphereLight(0xffffff, 0x9e9e9e, 5);
 scene.add(light);
-
-/*const light = new THREE.PointLight(0xffffff, 5, 0);
-light.position.set(-150, 300, 100);
-light.decay = 0;
-scene.add(light);*/
 
 const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
 camera.position.x = 0;
@@ -134,7 +156,7 @@ animate()
 
 let altitudeChart = new CanvasJS.Chart("altitude", {
     title: {
-        text: `Altitude = ${altitude[altitude.length - 1].y} m`,
+        text: `Altitude (m)`,
         fontColor: "white",
         fontFamily: "sans-serif",
         fontWeight: "normal"
@@ -142,59 +164,104 @@ let altitudeChart = new CanvasJS.Chart("altitude", {
     data: [{
         type: "spline",
         markerType: "none",
-        dataPoints: altitude,
-        color: "red"
+        dataPoints: data.altitude,
+        color: "green"
     }],
     backgroundColor: "#000000",
-    axisX:{
+    axisX: {
         labelFontColor: "white"
     },
-    axisY:{
+    axisY: {
         labelFontColor: "white",
         labelMaxWidth: 20
     }
 });
-
 let accelerationChart = new CanvasJS.Chart("acceleration", {
     title: {
-        text: `Acceleration = ${acceleration[acceleration.length - 1].y} m`,
+        text: `Acceleration (m/s²)`,
         fontColor: "white",
         fontFamily: "sans-serif",
         fontWeight: "normal"
     },
-    data: [{
-        type: "spline",
-        markerType: "none",
-        dataPoints: acceleration,
-        color: "yellow"
-    }],
+    toolTip: {
+        shared: true
+    },
+    data: [
+        {
+            name: "accX",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.accelerationX,
+            color: "red",
+            showInLegend: true
+        },
+        {
+            name: "accY",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.accelerationY,
+            color: "yellow",
+            showInLegend: true
+        },
+        {
+            name: "accZ",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.accelerationZ,
+            color: "blue",
+            showInLegend: true
+        }
+    ],
     backgroundColor: "#000000",
-    axisX:{
+    axisX: {
         labelFontColor: "white"
     },
-    axisY:{
+    axisY: {
         labelFontColor: "white",
         labelMaxWidth: 20
     }
 });
-let pressureChart = new CanvasJS.Chart("pressure", {
+let angularVelocityChart = new CanvasJS.Chart("angularVelocity", {
     title: {
-        text: `Pressure = ${pressure[pressure.length - 1].y} m`,
+        text: `Angular Velocity ()`,
         fontColor: "white",
         fontFamily: "sans-serif",
         fontWeight: "normal"
     },
-    data: [{
-        type: "spline",
-        markerType: "none",
-        dataPoints: pressure,
-        color: "blue"
-    }],
+    toolTip: {
+        shared: true
+    },
+    data: [
+        {
+            name: "gyroX",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.angularVelocityX,
+            color: "red",
+            showInLegend: true
+        },
+        {
+            name: "gyroY",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.angularVelocityY,
+            color: "yellow",
+            showInLegend: true
+        },
+        {
+            name: "gyroZ",
+            type: "spline",
+            markerType: "none",
+            dataPoints: data.angularVelocityZ,
+            color: "blue",
+            showInLegend: true
+        }
+    ],
     backgroundColor: "#000000",
-    axisX:{
+    axisX: {
         labelFontColor: "white"
     },
-    axisY:{
+    axisY: {
         labelFontColor: "white",
         labelMaxWidth: 20
     }
@@ -202,9 +269,6 @@ let pressureChart = new CanvasJS.Chart("pressure", {
 
 const parachuteField = document.createElement("p");
 parachuteDiv.appendChild(parachuteField);
-
-//https://canvasjs.com/html5-javascript-dynamic-chart/
-
 
 //*****************
 // Loop
@@ -214,30 +278,67 @@ function update() {
     let i = 0;
     setInterval(function () {
         parachuteField.innerHTML = '';
-        parachuteField.appendChild(document.createTextNode(`Parachute status : ${parachute ? "ejected" : "standby"}`));
-        parachuteDiv.style.backgroundColor = parachute ? "#407500" : "#750000";
-        rocketPicture.style.bottom = `${(altitude[altitude.length - 1].y / MAX_ALTITUDE * 100)}%`;
-        /*altitude.push({
+        parachuteField.appendChild(document.createTextNode(`Parachute status : ${data.parachute ? "ejected" : "standby"}`));
+        parachuteDiv.style.backgroundColor = data.parachute ? "#407500" : "#750000";
+
+        rawDataDiv.innerHTML = '';
+        for (const property in data) {
+            let node;
+            if (Array.isArray(data[property]))
+                node = document.createTextNode(`${property} = ${data[property][data[property].length-1].y}\t`);
+            else
+                node = document.createTextNode(`${property} = ${data[property]}\t`);
+            let rawDataP = document.createElement("p");
+            rawDataP.appendChild(node);
+            rawDataDiv.appendChild(rawDataP);
+        }
+
+        rocketPicture.style.bottom = `${(data.altitude[data.altitude.length - 1].y / MAX_ALTITUDE * 100)}%`;
+        data.altitude.push({
             x: Date.now() - INIT_EPOCH,
-            y: altitude[altitude.length - 1].y + 1
-        });*/
-        acceleration.push({
-            x: Date.now() - INIT_EPOCH,
-            y: acceleration[acceleration.length - 1].y * 1.01
+            y: data.altitude[data.altitude.length - 1].y + 1
         });
-        pressure.push({
+        data.accelerationX.push({
             x: Date.now() - INIT_EPOCH,
-            y: pressure[pressure.length - 1].y - 1
+            y: data.accelerationX[data.accelerationX.length - 1].y * 1.01
         });
+        data.accelerationY.push({
+            x: Date.now() - INIT_EPOCH,
+            y: data.accelerationY[data.accelerationY.length - 1].y * 1.011
+        });
+        data.accelerationZ.push({
+            x: Date.now() - INIT_EPOCH,
+            y: data.accelerationZ[data.accelerationZ.length - 1].y * 1.012
+        });
+        data.angularVelocityX.push({
+            x: Date.now() - INIT_EPOCH,
+            y: data.angularVelocityX[data.angularVelocityX.length - 1].y * -1.0
+        });
+        data.angularVelocityY.push({
+            x: Date.now() - INIT_EPOCH,
+            y: data.angularVelocityY[data.angularVelocityY.length - 1].y * -1.0
+        });
+        data.angularVelocityZ.push({
+            x: Date.now() - INIT_EPOCH,
+            y: data.angularVelocityZ[data.angularVelocityZ.length - 1].y * -1.0
+        });
+
+
         if (rocketModel) rocketModel.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 1), i * Math.PI / 24);
         i++;
 
-        altitudeChart.options.title.text = `Altitude = ${Math.round(altitude[altitude.length - 1].y)} m`;
+        altitudeChart.options.title.text = `Altitude (m)`;
         altitudeChart.render();
-        accelerationChart.options.title.text = `Acceleration = ${Math.round(acceleration[acceleration.length - 1].y)} m/s²`;
+        accelerationChart.options.title.text = `Acceleration (m/s²)`;
         accelerationChart.render();
-        pressureChart.options.title.text = `Pressure = ${Math.round(pressure[pressure.length - 1].y)} hPa`;
-        pressureChart.render();
+        angularVelocityChart.options.title.text = `Angular Velocity ()`;
+        angularVelocityChart.render();
+
+        for (let j = 0; j < data.phase; j++) {
+            const phaseStepSvg = phaseSteps[j].getElementsByTagName('svg');
+            phaseStepSvg[0].getElementsByTagName("circle")[0].style.fill = "green";
+            phaseStepSvg[0].getElementsByTagName("line")[0].style.stroke = "green";
+        }
     }, 50);
 }
 

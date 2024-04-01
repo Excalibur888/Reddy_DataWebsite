@@ -12,14 +12,66 @@
     </div>
 </div>
 <div>
-    <div id="rocket-render">
     <div id="parachute-status"></div>
-</div>
+    <div id="rocket-render"></div>
+    <div id="raw-data"></div>
 </div>
 <div id="rocket-stats">
     <div id="altitude"></div>
     <div id="acceleration"></div>
-    <div id="pressure"></div>
+    <div id="angularVelocity"></div>
+</div>
+<div id="rocket-phase">
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="50%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Standby</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Ready to launch</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Powered Ascent</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Burnout Ascent</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Free Fall</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Chute Fall</p>
+    </div>
+    <div class="rocket-phase-step">
+        <svg height="14vh" width="3vw">
+            <line x1="50%" y1="50%" x2="50%" y2="100%" style="stroke:white;stroke-width:.25vw"/>
+            <circle r="1.25vw" cx="50%" cy="50%" fill="black" stroke="white" stroke-width=".25vw"/>
+        </svg>
+        <p class="phase-label">Landed</p>
+    </div>
+</div>
 </div>
 <script type="module" src="bundle.js"></script>
 </body>
