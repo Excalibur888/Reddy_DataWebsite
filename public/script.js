@@ -27,7 +27,7 @@ const data = {
     angularVelocityY: [],
     angularVelocityZ: [],
     parachute: false,
-    phase: 3
+    phase: 5
 }
 // 0;15;987
 
