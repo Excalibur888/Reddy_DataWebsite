@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
 import CanvasJS from '@canvasjs/charts';
 
-const ws = new WebSocket('ws://localhost:3000');
+const host = window.location.hostname;
+const ws = new WebSocket(`ws://${host}:80`);
 
 const rocketObj = 'assets/Reddy.obj'
 
@@ -27,9 +28,9 @@ const data = {
     angularVelocityY: [],
     angularVelocityZ: [],
     parachute: false,
-    phase: 5
+    phase: 3
 }
-// 0;15;987
+
 
 data.altitude.push({
     x: Date.now() - INIT_EPOCH,
@@ -37,27 +38,27 @@ data.altitude.push({
 });
 data.accelerationX.push({
     x: Date.now() - INIT_EPOCH,
-    y: 15
+    y: 8.9
 });
 data.accelerationY.push({
     x: Date.now() - INIT_EPOCH,
-    y: 15
+    y: 8.9
 });
 data.accelerationZ.push({
     x: Date.now() - INIT_EPOCH,
-    y: 15
+    y: 8.9
 });
 data.angularVelocityX.push({
     x: Date.now() - INIT_EPOCH,
-    y: 15
+    y: 0.01
 });
 data.angularVelocityY.push({
     x: Date.now() - INIT_EPOCH,
-    y: 16
+    y: 0.01
 });
 data.angularVelocityZ.push({
     x: Date.now() - INIT_EPOCH,
-    y: 17
+    y: 0.01
 });
 
 // When the connection is open, send a message to the server
@@ -223,7 +224,7 @@ let accelerationChart = new CanvasJS.Chart("acceleration", {
 });
 let angularVelocityChart = new CanvasJS.Chart("angularVelocity", {
     title: {
-        text: `Angular Velocity ()`,
+        text: `Angular Velocity (rad/s)`,
         fontColor: "white",
         fontFamily: "sans-serif",
         fontWeight: "normal"
@@ -300,11 +301,11 @@ function update() {
         });
         data.accelerationX.push({
             x: Date.now() - INIT_EPOCH,
-            y: data.accelerationX[data.accelerationX.length - 1].y * 1.01
+            y: data.accelerationX[data.accelerationX.length - 1].y * 1
         });
         data.accelerationY.push({
             x: Date.now() - INIT_EPOCH,
-            y: data.accelerationY[data.accelerationY.length - 1].y * 1.011
+            y: data.accelerationY[data.accelerationY.length - 1].y * 1
         });
         data.accelerationZ.push({
             x: Date.now() - INIT_EPOCH,
@@ -312,15 +313,15 @@ function update() {
         });
         data.angularVelocityX.push({
             x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityX[data.angularVelocityX.length - 1].y * -1.0
+            y: data.angularVelocityX[data.angularVelocityX.length - 1].y * -1.015
         });
         data.angularVelocityY.push({
             x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityY[data.angularVelocityY.length - 1].y * -1.0
+            y: data.angularVelocityY[data.angularVelocityY.length - 1].y * -1.01
         });
         data.angularVelocityZ.push({
             x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityZ[data.angularVelocityZ.length - 1].y * -1.0
+            y: data.angularVelocityZ[data.angularVelocityZ.length - 1].y * -1.015
         });
 
 
@@ -331,7 +332,7 @@ function update() {
         altitudeChart.render();
         accelerationChart.options.title.text = `Acceleration (m/s²)`;
         accelerationChart.render();
-        angularVelocityChart.options.title.text = `Angular Velocity ()`;
+        angularVelocityChart.options.title.text = `Angular Velocity (rad/s)`;
         angularVelocityChart.render();
 
         for (let j = 0; j < data.phase; j++) {

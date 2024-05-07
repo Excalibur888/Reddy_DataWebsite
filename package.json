@@ -15,7 +15,7 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "@canvasjs/charts": "^3.7.40",
+    "@canvasjs/charts": "^3.8.1",
     "express": "^4.19.2",
     "three": "^0.161.0",
     "ws": "^8.16.0"
