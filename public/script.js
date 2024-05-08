@@ -65,10 +65,10 @@ data.angularVelocityZ.push({
 ws.addEventListener('open', () => {
     console.log('WebSocket connection opened');
     // For example, send a message to the server
-    ws.send('Hello server!');
+//    ws.send('Hello server!');
 });
 
-// Listen for messages from the server
+/* Listen for messages from the server
 ws.addEventListener('message', (event) => {
     console.log('Received message from server:', event.data);
     data.altitude.push({
@@ -76,7 +76,13 @@ ws.addEventListener('message', (event) => {
         y: data.altitude[data.altitude.length - 1].y + 1
     });
 });
+*/
 
+async function fetchData() {
+    const response = await fetch("/data");
+    const liveData = await response.json();
+    console.log(liveData);
+}
 
 //*****************
 // Rocket altitude
@@ -278,6 +284,9 @@ parachuteDiv.appendChild(parachuteField);
 function update() {
     let i = 0;
     setInterval(function () {
+
+        fetchData()
+
         parachuteField.innerHTML = '';
         parachuteField.appendChild(document.createTextNode(`Parachute status : ${data.parachute ? "ejected" : "standby"}`));
         parachuteDiv.style.backgroundColor = data.parachute ? "#407500" : "#750000";
@@ -340,7 +349,7 @@ function update() {
             phaseStepSvg[0].getElementsByTagName("circle")[0].style.fill = "green";
             phaseStepSvg[0].getElementsByTagName("line")[0].style.stroke = "green";
         }
-    }, 50);
+    }, 250);
 }
 
 update();
