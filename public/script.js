@@ -3,7 +3,6 @@ import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
 import CanvasJS from '@canvasjs/charts';
 
 const host = window.location.hostname;
-const ws = new WebSocket(`ws://${host}:80`);
 
 const rocketObj = 'assets/Reddy.obj'
 
@@ -61,27 +60,53 @@ data.angularVelocityZ.push({
     y: 0.01
 });
 
-// When the connection is open, send a message to the server
-ws.addEventListener('open', () => {
-    console.log('WebSocket connection opened');
-    // For example, send a message to the server
-//    ws.send('Hello server!');
-});
-
-/* Listen for messages from the server
-ws.addEventListener('message', (event) => {
-    console.log('Received message from server:', event.data);
-    data.altitude.push({
-        x: Date.now() - INIT_EPOCH,
-        y: data.altitude[data.altitude.length - 1].y + 1
-    });
-});
-*/
-
 async function fetchData() {
     const response = await fetch("/data");
     const liveData = await response.json();
-    console.log(liveData);
+    if (!liveData) return null;
+    console.log("Data retrieved");
+    if (liveData.Baro) {
+        data.altitude.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.Baro
+        });
+    }
+    if (liveData.AccX) {
+        data.accelerationX.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.AccX
+        });
+    }
+    if (liveData.AccY) {
+        data.accelerationY.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.AccY
+        });
+    }
+    if (liveData.AccZ) {
+        data.accelerationZ.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.AccZ
+        });
+    }
+    if (liveData.GyroX) {
+        data.angularVelocityX.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.GyroX
+        });
+    }
+    if (liveData.GyroY) {
+        data.angularVelocityY.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.GyroY
+        });
+    }
+    if (liveData.GyroZ) {
+        data.angularVelocityZ.push({
+            x: Date.now() - INIT_EPOCH,
+            y: liveData.GyroZ
+        });
+    }
 }
 
 //*****************
@@ -304,35 +329,6 @@ function update() {
         }
 
         rocketPicture.style.bottom = `${(data.altitude[data.altitude.length - 1].y / MAX_ALTITUDE * 100)}%`;
-        data.altitude.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.altitude[data.altitude.length - 1].y + 1
-        });
-        data.accelerationX.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.accelerationX[data.accelerationX.length - 1].y * 1
-        });
-        data.accelerationY.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.accelerationY[data.accelerationY.length - 1].y * 1
-        });
-        data.accelerationZ.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.accelerationZ[data.accelerationZ.length - 1].y * 1.012
-        });
-        data.angularVelocityX.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityX[data.angularVelocityX.length - 1].y * -1.015
-        });
-        data.angularVelocityY.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityY[data.angularVelocityY.length - 1].y * -1.01
-        });
-        data.angularVelocityZ.push({
-            x: Date.now() - INIT_EPOCH,
-            y: data.angularVelocityZ[data.angularVelocityZ.length - 1].y * -1.015
-        });
-
 
         if (rocketModel) rocketModel.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 1), i * Math.PI / 24);
         i++;
