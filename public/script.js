@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
 import CanvasJS from '@canvasjs/charts';
 
+const refreshRate = 50;
+
 const rocketObj = 'assets/Reddy.obj'
 
 const rocketPicture = document.getElementById("rocket-picture");
@@ -64,42 +66,49 @@ async function fetchData() {
     if (!liveData) return null;
     console.log("Data retrieved");
     if (liveData.Baro) {
+        if (data.altitude.length > 80 * refreshRate ) data.altitude.shift();
         data.altitude.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.Baro
         });
     }
     if (liveData.AccX) {
+        if (data.accelerationX.length > 80 * refreshRate ) data.accelerationX.shift();
         data.accelerationX.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.AccX
         });
     }
     if (liveData.AccY) {
+        if (data.accelerationY.length > 80 * refreshRate ) data.accelerationY.shift();
         data.accelerationY.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.AccY
         });
     }
     if (liveData.AccZ) {
+        if (data.accelerationZ.length > 80 * refreshRate ) data.accelerationZ.shift();
         data.accelerationZ.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.AccZ
         });
     }
     if (liveData.GyroX) {
+        if (data.angularVelocityX.length > 80 * refreshRate ) data.angularVelocityX.shift();
         data.angularVelocityX.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.GyroX
         });
     }
     if (liveData.GyroY) {
+        if (data.angularVelocityY.length > 80 * refreshRate ) data.angularVelocityY.shift();
         data.angularVelocityY.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.GyroY
         });
     }
     if (liveData.GyroZ) {
+        if (data.angularVelocityZ.length > 80 * refreshRate ) data.angularVelocityZ.shift();
         data.angularVelocityZ.push({
             x: Date.now() - INIT_EPOCH,
             y: liveData.GyroZ
@@ -331,14 +340,6 @@ function update() {
         if (rocketModel) rocketModel.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 1), i * Math.PI / 24);
         i++;
 
-        altitudeChart.options.data[0].dataPoints = data.altitude.slice(-80);
-        accelerationChart.options.data[0].dataPoints = data.accelerationX.slice(-80);
-        accelerationChart.options.data[1].dataPoints = data.accelerationY.slice(-80);
-        accelerationChart.options.data[2].dataPoints = data.accelerationZ.slice(-80);
-        angularVelocityChart.options.data[0].dataPoints = data.angularVelocityX.slice(-80);
-        angularVelocityChart.options.data[1].dataPoints = data.angularVelocityY.slice(-80);
-        angularVelocityChart.options.data[2].dataPoints = data.angularVelocityZ.slice(-80);
-
         altitudeChart.options.title.text = `Altitude (m)`;
         altitudeChart.render();
         accelerationChart.options.title.text = `Acceleration (m/s²)`;
@@ -351,7 +352,7 @@ function update() {
             phaseStepSvg[0].getElementsByTagName("circle")[0].style.fill = "green";
             phaseStepSvg[0].getElementsByTagName("line")[0].style.stroke = "green";
         }
-    }, 50);
+    }, refreshRate);
 }
 
 update();
