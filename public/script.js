@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
 import CanvasJS from '@canvasjs/charts';
 
-const host = window.location.hostname;
-
 const rocketObj = 'assets/Reddy.obj'
 
 const rocketPicture = document.getElementById("rocket-picture");
@@ -333,6 +331,14 @@ function update() {
         if (rocketModel) rocketModel.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 1), i * Math.PI / 24);
         i++;
 
+        altitudeChart.options.data[0].dataPoints = data.altitude.slice(-80);
+        accelerationChart.options.data[0].dataPoints = data.accelerationX.slice(-80);
+        accelerationChart.options.data[1].dataPoints = data.accelerationY.slice(-80);
+        accelerationChart.options.data[2].dataPoints = data.accelerationZ.slice(-80);
+        angularVelocityChart.options.data[0].dataPoints = data.angularVelocityX.slice(-80);
+        angularVelocityChart.options.data[1].dataPoints = data.angularVelocityY.slice(-80);
+        angularVelocityChart.options.data[2].dataPoints = data.angularVelocityZ.slice(-80);
+
         altitudeChart.options.title.text = `Altitude (m)`;
         altitudeChart.render();
         accelerationChart.options.title.text = `Acceleration (m/s²)`;
@@ -345,7 +351,7 @@ function update() {
             phaseStepSvg[0].getElementsByTagName("circle")[0].style.fill = "green";
             phaseStepSvg[0].getElementsByTagName("line")[0].style.stroke = "green";
         }
-    }, 250);
+    }, 50);
 }
 
 update();
