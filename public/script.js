@@ -102,7 +102,15 @@ function generateMockData() {
     mockTime += refreshRate;
     const t = mockTime / 1000;
 
-    if (mockTime >= FLIGHT_DURATION && data.phase === 7) flightEnded = true;
+    // Recommence le vol quand terminé
+    if (data.phase === 7 && currentAltitude === 0 && mockTime > 10000) {
+        mockTime = 0;
+        velocity = 0;
+        currentAltitude = 0;
+        rollAngle = 0;
+        data.parachute = false;
+        data.phase = 1;
+    }
 
     let accZ, phase;
     const APOGEE = 3700;
@@ -183,7 +191,6 @@ function generateMockData() {
 }
 
 function pushMockData() {
-    if (flightEnded) return;
     const mock = generateMockData();
     const now = Date.now() - INIT_EPOCH;
 
