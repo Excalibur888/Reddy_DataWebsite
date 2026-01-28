@@ -5,7 +5,7 @@ import CanvasJS from '@canvasjs/charts';
 const refreshRate = 100;
 const USE_MOCK_DATA = true;
 
-const rocketObj = 'assets/Reddy.obj'
+const rocketObj = 'assets/Stella.obj'
 
 const rocketPicture = document.getElementById("rocket-picture");
 const altitudeGraphicDiv = document.getElementById("rocket-altitude-container");
@@ -63,7 +63,7 @@ data.angularVelocityZ.push({
 
 // Mock data generation
 let mockTime = 0;
-const FLIGHT_DURATION = 60000; // 1 minute total
+const FLIGHT_DURATION = 120000; // 2 minutes max (termine à l'atterrissage)
 const MAX_DATA_POINTS = 50;
 const APOGEE_TIME = 8000; // Apogee at 8s
 const TARGET_APOGEE = 3700; // 3.7km
@@ -101,59 +101,65 @@ function generateMockData() {
     mockTime += refreshRate;
     const t = mockTime / 1000;
 
-    if (mockTime >= FLIGHT_DURATION) flightEnded = true;
+    if (mockTime >= FLIGHT_DURATION && data.phase === 7) flightEnded = true;
 
     let accZ, phase;
-    const BURN_START = 0.5;
-    const BURN_END = 2.2;
-    const BURN_PEAK = 0.7;
-    const PEAK_ACC = 280;
+    const APOGEE = 3700;
+    const T_APOGEE = 8;
+    const BURN_END = 1.5;
+    const DESCENT_TIME = 30;
+    const DESCENT_SPEED = APOGEE / DESCENT_TIME; // ~123 m/s pour 30s de descente
     
     let rollSpeed = 0;
     let tiltX = 0, tiltZ = 0;
+    let prevAlt = currentAltitude;
+    let prevVel = velocity;
     
-    if (t < BURN_START) {
+    if (t < 0.3) {
+        // Standby
+        currentAltitude = 0;
+        velocity = 0;
         accZ = 0;
         phase = 1;
         rollSpeed = 0;
     } else if (t < BURN_END) {
-        const burnT = t - BURN_START;
-        const peakT = BURN_PEAK - BURN_START;
-        const decayT = BURN_END - BURN_PEAK;
-        if (t < BURN_PEAK) {
-            accZ = PEAK_ACC * Math.pow(burnT / peakT, 0.2);
-        } else {
-            accZ = PEAK_ACC * Math.exp(-(t - BURN_PEAK) / (decayT * 0.6));
-        }
-        accZ += (Math.random() - 0.5) * 10;
-        phase = t < 1 ? 2 : 3;
+        // Propulsion - profil parabolique pour atteindre bonne vitesse
+        const burnProgress = (t - 0.3) / (BURN_END - 0.3);
+        currentAltitude = APOGEE * 0.15 * burnProgress * burnProgress;
+        velocity = (currentAltitude - prevAlt) / dt;
+        accZ = (velocity - prevVel) / dt;
+        phase = t < 0.8 ? 2 : 3;
         rollSpeed = 5.0;
         tiltX = 0.015 * Math.sin(t * 4);
         tiltZ = 0.015 * Math.cos(t * 3);
-    } else if (velocity > 0) {
-        accZ = -9.81 + (Math.random() - 0.5) * 0.3;
+    } else if (t < T_APOGEE) {
+        // Coast vers apogée - interpolation smooth
+        const coastProgress = (t - BURN_END) / (T_APOGEE - BURN_END);
+        const startAlt = APOGEE * 0.15;
+        currentAltitude = startAlt + (APOGEE - startAlt) * Math.sin(coastProgress * Math.PI / 2);
+        velocity = (currentAltitude - prevAlt) / dt;
+        accZ = (velocity - prevVel) / dt;
         phase = 4;
         rollSpeed = 2.5;
         tiltX = 0.05 * Math.sin(t * 1.5);
         tiltZ = 0.05 * Math.cos(t * 1.2);
     } else if (currentAltitude > 10) {
+        // Descente sous parachute
         data.parachute = true;
-        const terminalVel = -8;
-        accZ = (velocity < terminalVel) ? 3 : -0.5;
-        phase = velocity < -5 ? 6 : 5;
+        velocity = -DESCENT_SPEED;
+        currentAltitude = Math.max(0, prevAlt + velocity * dt);
+        accZ = (velocity - prevVel) / dt;
+        phase = 6;
         rollSpeed = 0.2;
         tiltX = 0.2 * Math.sin(t * 0.4);
         tiltZ = 0.2 * Math.cos(t * 0.35);
     } else {
-        accZ = 0;
-        velocity = 0;
         currentAltitude = 0;
+        velocity = 0;
+        accZ = 0;
         phase = 7;
         rollSpeed = 0;
     }
-
-    velocity += accZ * dt;
-    currentAltitude = Math.max(0, currentAltitude + velocity * dt);
 
     // Quaternion: roll sur l'axe longitudinal (Z du modèle) puis rotation pour pointer vers le haut
     rollAngle += rollSpeed * dt;
