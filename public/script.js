@@ -71,9 +71,10 @@ let flightEnded = false;
 let velocity = 0;
 let currentAltitude = 0;
 
-// Quaternion state (w, x, y, z) - starts pointing up (rotated 90° on X axis)
-const sqrt2 = Math.sqrt(2) / 2;
-let quat = { w: sqrt2, x: sqrt2, y: 0, z: 0 };
+// Quaternion state - starts at 80° (légèrement incliné, 90° = vertical)
+const INITIAL_ANGLE = 80 * Math.PI / 180; // 80° en radians
+const halfAngle = INITIAL_ANGLE / 2;
+let quat = { w: Math.cos(halfAngle), x: Math.sin(halfAngle), y: 0, z: 0 };
 let rollAngle = 0;
 
 function normalizeQuat(q) {
@@ -164,7 +165,7 @@ function generateMockData() {
     // Quaternion: roll sur l'axe longitudinal (Z du modèle) puis rotation pour pointer vers le haut
     rollAngle += rollSpeed * dt;
     const rollQuat = quatFromAxisAngle(0, 0, 1, rollAngle); // Roll autour de Z (axe long du modèle)
-    const baseUp = { w: sqrt2, x: -sqrt2, y: 0, z: 0 }; // Rotation pour pointer vers le haut
+    const baseUp = { w: Math.cos(halfAngle), x: -Math.sin(halfAngle), y: 0, z: 0 }; // 80° initial
     const tiltQuat = quatFromAxisAngle(tiltX, 0, tiltZ, Math.sqrt(tiltX*tiltX + tiltZ*tiltZ));
     quat = normalizeQuat(multiplyQuat(multiplyQuat(baseUp, tiltQuat), rollQuat));
 
@@ -304,6 +305,14 @@ objLoader.load(rocketObj, (object) => {
             obj.material.color = new THREE.Color(0xffffff);
         }
     });
+    rocketModel.scale.set(3, 3, 3);
+    // Centre le modèle et ajuste (trop haut = -Y, trop à droite = +Z)
+    const box = new THREE.Box3().setFromObject(rocketModel);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    rocketModel.position.sub(center);
+    rocketModel.position.y -= 150;
+    rocketModel.position.z += 150;
     scene.add(rocketModel);
 }, (xhr) => {
     console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
